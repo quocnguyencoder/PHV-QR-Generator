@@ -3,7 +3,7 @@ import type React from 'react';
 import { useState, useRef } from 'react';
 import { MdUploadFile } from 'react-icons/md';
 
-interface FileInputProps { }
+interface FileInputProps {}
 
 const FileInput: React.FC<FileInputProps> = () => {
   const [dragging, setDragging] = useState(false);

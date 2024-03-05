@@ -1,4 +1,4 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
+// eslint-disable-next-line import/no-extraneous-dependencies, @typescript-eslint/no-unused-vars
 import QRCode from 'qrcode.react';
 import type React from 'react';
 import { useRef, useEffect } from 'react';

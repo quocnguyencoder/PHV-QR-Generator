@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { saveAs } from 'file-saver';
 
 import type { IResult } from '../interfaces/IResult';
