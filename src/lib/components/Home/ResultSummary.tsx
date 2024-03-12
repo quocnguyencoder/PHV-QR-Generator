@@ -1,5 +1,6 @@
 import { Button, VStack, Text, HStack } from '@chakra-ui/react';
 
+import { downloadSummaryExcel } from '~/lib/helpers/excel';
 import { downloadAllQRCodes } from '~/lib/helpers/qrCode';
 import type { IResult } from '~/lib/interfaces/IResult';
 
@@ -8,7 +9,7 @@ interface ResultSummaryProps {
 }
 
 const ResultSummary = ({ results }: ResultSummaryProps) => {
-  const handleDownload = () => {
+  const handleDownloadAll = () => {
     downloadAllQRCodes(results);
   };
 
@@ -35,7 +36,7 @@ const ResultSummary = ({ results }: ResultSummaryProps) => {
             Total: <strong>{results.length}</strong>
           </Text>
           <Text>
-            Duplicate:{' '}
+            Duplicate Results:{' '}
             <strong
               style={{ color: duplicatedUrlsCount > 0 ? 'red' : 'green' }}
             >
@@ -43,9 +44,17 @@ const ResultSummary = ({ results }: ResultSummaryProps) => {
             </strong>
           </Text>
         </VStack>
-        <Button colorScheme="blue" onClick={handleDownload}>
-          Download all
-        </Button>
+        <HStack>
+          <Button
+            colorScheme="teal"
+            onClick={() => downloadSummaryExcel(results, 'summary')}
+          >
+            Download summary excel
+          </Button>
+          <Button colorScheme="blue" onClick={handleDownloadAll}>
+            Download all
+          </Button>
+        </HStack>
       </HStack>
     </VStack>
   );

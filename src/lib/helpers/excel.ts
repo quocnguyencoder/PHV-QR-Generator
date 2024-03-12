@@ -1,6 +1,10 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import * as XLSX from 'xlsx';
 
+import type { IResult } from '../interfaces/IResult';
+
+import { convertToResultSummary } from './qrCode';
+
 export type QRCodeData = {
   storeId: string;
   tableId?: string;
@@ -40,3 +44,39 @@ export async function readExcelAndConvertToQRCodeData(
     reader.readAsArrayBuffer(file);
   });
 }
+
+const s2ab = (s: string) => {
+  const buf = new ArrayBuffer(s.length);
+  const view = new Uint8Array(buf);
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < s.length; i++) {
+    // eslint-disable-next-line no-bitwise
+    view[i] = s.charCodeAt(i) & 0xff;
+  }
+  return buf;
+};
+
+export const downloadSummaryExcel = (results: IResult[], fileName: string) => {
+  // Convert data to worksheet
+  const ws = XLSX.utils.json_to_sheet(convertToResultSummary(results));
+
+  // Create a workbook
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Results');
+
+  // Convert workbook to binary string
+  const wbout = XLSX.write(wb, { type: 'binary', bookType: 'xlsx' });
+
+  // Convert binary string to Blob
+  const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+
+  // Trigger download
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${fileName}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};

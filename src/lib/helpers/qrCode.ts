@@ -3,7 +3,7 @@ import { saveAs } from 'file-saver';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import JSZip from 'jszip';
 
-import type { IResult } from '../interfaces/IResult';
+import type { IResult, IResultSummary } from '../interfaces/IResult';
 import { baseUrl, options } from '../pages/home/constants';
 import type { GenerateParams } from '../types/GenerateInfo';
 import type { QRCodeData, QRType } from '../types/QRCodeInfo';
@@ -113,4 +113,13 @@ export const downloadAllQRCodes = async (results: IResult[]) => {
   } catch (error) {
     console.error('Error downloading and zipping QR codes:', error);
   }
+};
+
+export const convertToResultSummary = (
+  results: IResult[]
+): IResultSummary[] => {
+  return results.map((result) => {
+    const fileName = extractQRCodeFileName(result.fullUrl);
+    return { ...result, fileName };
+  });
 };
