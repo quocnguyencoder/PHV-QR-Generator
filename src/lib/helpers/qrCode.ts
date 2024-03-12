@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
 import { saveAs } from 'file-saver';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import JSZip from 'jszip';
 
 import type { IResult } from '../interfaces/IResult';
 import { baseUrl, options } from '../pages/home/constants';
@@ -46,35 +48,62 @@ export function extractQRCodeFileName(url: string): string {
 }
 
 export const downloadQRCode = (fileName: string) => {
-  return new Promise<void>((resolve, reject) => {
-    const canvas = document.getElementById(`${fileName}`) as HTMLCanvasElement;
+  const canvas = document.getElementById(fileName) as HTMLCanvasElement;
 
-    if (!canvas) {
-      console.error('Canvas element not found', fileName);
-      reject(new Error('Canvas element not found'));
-      return;
+  if (!canvas) {
+    console.error('Canvas element not found', fileName);
+    throw new Error('Canvas element not found');
+  }
+
+  canvas.toBlob((blob) => {
+    if (blob) {
+      saveAs(blob, fileName);
+    } else {
+      throw new Error('Failed to create blob');
     }
-
-    canvas.toBlob((blob) => {
-      if (blob) {
-        saveAs(blob, fileName);
-        resolve();
-      } else {
-        reject(new Error('Failed to create blob'));
-      }
-    });
   });
 };
 
 export const downloadAllQRCodes = async (results: IResult[]) => {
   try {
-    await Promise.all(
-      results.map((result) =>
-        downloadQRCode(extractQRCodeFileName(result.fullUrl))
-      )
-    );
-    console.log('All QR codes downloaded successfully');
+    const zip = new JSZip();
+    const canvasElements: HTMLCanvasElement[] = [];
+
+    results.forEach((result) => {
+      const canvas = document.getElementById(
+        extractQRCodeFileName(result.fullUrl)
+      ) as HTMLCanvasElement;
+      if (!canvas) {
+        console.error('Canvas element not found for', result.fullUrl);
+        return;
+      }
+      canvasElements.push(canvas);
+    });
+
+    const promises = canvasElements.map(async (canvas, index) => {
+      const fileName = `QRCode_${index + 1}.png`;
+      const blob = await new Promise<Blob>((resolve) => {
+        canvas.toBlob((b) => {
+          if (b) {
+            resolve(b);
+          }
+        });
+      });
+      if (blob) {
+        return zip.file(fileName, blob);
+      }
+      return null;
+    });
+
+    await Promise.all(promises);
+
+    // Generate zip file
+    const content = await zip.generateAsync({ type: 'blob' });
+
+    // Download zip file
+    saveAs(content, 'qrcodes.zip');
+    console.log('All QR codes downloaded and zipped successfully');
   } catch (error) {
-    console.error('Error downloading QR codes:', error);
+    console.error('Error downloading and zipping QR codes:', error);
   }
 };
