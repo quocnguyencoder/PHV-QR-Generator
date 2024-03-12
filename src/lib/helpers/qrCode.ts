@@ -4,13 +4,14 @@ import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 
 import type { IResult, IResultSummary } from '../interfaces/IResult';
-import { baseUrl, options } from '../pages/home/constants';
-import type { GenerateParams } from '../types/GenerateInfo';
+import { options, origins } from '../pages/home/constants';
+import type { Environment, GenerateParams } from '../types/GenerateInfo';
 import type { QRCodeData, QRType } from '../types/QRCodeInfo';
 
 export const convertDataToResult = (
   data: QRCodeData,
-  qrCodeType: QRType
+  qrCodeType: QRType,
+  env: Environment
 ): IResult => {
   const { storeId, tableId, qrCodeID } = data;
   let params: GenerateParams = { storeId };
@@ -21,18 +22,39 @@ export const convertDataToResult = (
     params = { storeId, qrCodeID };
   }
 
-  const fullUrl = baseUrl + options[qrCodeType].generatePath(params);
+  const fullUrl =
+    origins[qrCodeType][env] + options[qrCodeType].generatePath(params);
   const newResult: IResult = { storeId, fullUrl };
   return newResult;
 };
 
 export const generateQRCodes = (
   qrCodeType: QRType,
-  data: QRCodeData[]
+  data: QRCodeData[],
+  env: Environment
 ): IResult[] => {
   const results: IResult[] = data.map((item) =>
-    convertDataToResult(item, qrCodeType)
+    convertDataToResult(item, qrCodeType, env)
   );
+
+  if (qrCodeType === 'PickUp') {
+    const distinctStores: IResult[] = results.reduce(
+      (uniqueStores: IResult[], result: IResult) => {
+        if (
+          result.storeId !== undefined &&
+          uniqueStores.findIndex(
+            (store) => store.storeId === result.storeId
+          ) === -1
+        ) {
+          uniqueStores.push(result);
+        }
+        return uniqueStores;
+      },
+      []
+    );
+    return distinctStores;
+  }
+
   return results;
 };
 

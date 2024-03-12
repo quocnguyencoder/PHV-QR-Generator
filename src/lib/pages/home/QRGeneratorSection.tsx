@@ -3,6 +3,7 @@
 import { Button, Flex, Input } from '@chakra-ui/react'; // Assuming you've installed this library
 import { useState } from 'react';
 
+import EnvOptionSelect from '~/lib/components/Home/EnvOptionSelect';
 import GenerateOptionSelect from '~/lib/components/Home/GenerateOptionSelect';
 import ModeSwitch from '~/lib/components/Home/ModeSwitch';
 import ResultSummary from '~/lib/components/Home/ResultSummary';
@@ -11,7 +12,7 @@ import ResultTable from '~/lib/components/ResultTable';
 import { readExcelAndConvertToQRCodeData } from '~/lib/helpers/excel';
 import { generateQRCodes } from '~/lib/helpers/qrCode';
 import type { IResult } from '~/lib/interfaces/IResult';
-import type { Mode } from '~/lib/types/GenerateInfo';
+import type { Environment, Mode } from '~/lib/types/GenerateInfo';
 import type { QRCodeData, QRType } from '~/lib/types/QRCodeInfo';
 
 import { options } from './constants';
@@ -20,7 +21,8 @@ const QRGeneratorSection = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [generateOption, setGenerateOption] = useState<QRType>('PickUp');
-  const [mode, setMode] = useState<Mode>('single');
+  const [envOption, setEnvOption] = useState<Environment>('production');
+  const [mode, setMode] = useState<Mode>('multiple');
 
   const [qrCodeData, setQRCodeData] = useState<QRCodeData[]>([]);
   const [results, setResults] = useState<IResult[]>([]);
@@ -29,7 +31,7 @@ const QRGeneratorSection = () => {
     if (qrCodeData.length === 0) return;
 
     if (mode === 'single') {
-      const res = generateQRCodes(generateOption, qrCodeData);
+      const res = generateQRCodes(generateOption, qrCodeData, envOption);
       setResults(res);
       return;
     }
@@ -37,7 +39,7 @@ const QRGeneratorSection = () => {
     if (!selectedFile) return;
 
     const data = await readExcelAndConvertToQRCodeData(selectedFile);
-    const res = generateQRCodes(generateOption, data);
+    const res = generateQRCodes(generateOption, data, envOption);
     setResults(res);
   };
 
@@ -66,6 +68,7 @@ const QRGeneratorSection = () => {
         generateOption={generateOption}
         setGenerateOption={setGenerateOption}
       />
+      <EnvOptionSelect envOption={envOption} setEnvOption={setEnvOption} />
 
       {/* Settings based on mode */}
       {mode === 'single' ? (
