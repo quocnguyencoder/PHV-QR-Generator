@@ -78,5 +78,5 @@ const ResultTable = ({ results }: ResultTableProps) => {
 };
 
 export default React.memo(ResultTable, (prevProps, nextProps) => {
-  return prevProps.results[0] === nextProps.results[0];
+  return prevProps.results.length === nextProps.results.length;
 });

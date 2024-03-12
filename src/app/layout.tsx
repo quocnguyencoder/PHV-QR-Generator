@@ -7,11 +7,11 @@ type RootLayoutProps = {
   children: React.ReactNode;
 };
 
-const APP_NAME = 'nextarter-chakra';
+const APP_NAME = 'PHV QR Generator';
 
 export const metadata: Metadata = {
-  title: { default: APP_NAME, template: '%s | nextarter-chakra' },
-  description: 'Next.js + chakra-ui + TypeScript template',
+  title: { default: APP_NAME, template: '%s | PHV QR Generator' },
+  description: 'QR code generator for Pizza Hut Platforms',
   applicationName: APP_NAME,
   appleWebApp: {
     capable: true,
@@ -20,19 +20,6 @@ export const metadata: Metadata = {
   },
   formatDetection: {
     telephone: false,
-  },
-  openGraph: {
-    url: 'https://nextarter-chakra.sznm.dev',
-    title: 'nextarter-chakra',
-    description: 'Next.js + chakra-ui + TypeScript template',
-    images: {
-      url: 'https://og-image.sznm.dev/**nextarter-chakra**.sznm.dev.png?theme=dark&md=1&fontSize=125px&images=https%3A%2F%2Fsznm.dev%2Favataaars.svg&widths=250',
-      alt: 'nextarter-chakra.sznm.dev og-image',
-    },
-  },
-  twitter: {
-    creator: '@sozonome',
-    card: 'summary_large_image',
   },
 };
 
@@ -45,6 +32,12 @@ export const viewport: Viewport = {
 const RootLayout = ({ children }: RootLayoutProps) => {
   return (
     <html lang="en">
+      <link
+        rel="icon"
+        href="/pizzahut_logo.png"
+        type="image/x-icon"
+        sizes="16x16"
+      />
       <body>
         <Providers>
           <Layout>{children}</Layout>

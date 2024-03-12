@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Flex, Input } from '@chakra-ui/react'; // Assuming you've installed this library
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import EnvOptionSelect from '~/lib/components/Home/EnvOptionSelect';
 import GenerateOptionSelect from '~/lib/components/Home/GenerateOptionSelect';
@@ -28,9 +28,8 @@ const QRGeneratorSection = () => {
   const [results, setResults] = useState<IResult[]>([]);
 
   const handleGenerateQrCode = async () => {
-    if (qrCodeData.length === 0) return;
-
     if (mode === 'single') {
+      if (qrCodeData.length === 0) return;
       const res = generateQRCodes(generateOption, qrCodeData, envOption);
       setResults(res);
       return;
@@ -57,43 +56,51 @@ const QRGeneratorSection = () => {
 
   const hasResults = results.length > 0;
 
+  // reset result when any info changes
+  useEffect(() => {
+    setResults([]);
+  }, [selectedFile, generateOption, envOption, mode]);
+
   return (
-    <Flex flexDirection="column" justifyContent="center" minWidth="80%">
-      {/* Mode Selection */}
-      <ModeSwitch mode={mode} handleModeChange={handleModeChange} />
+    <>
+      <Flex flexDirection="column" justifyContent="center" minWidth="80%">
+        {/* Mode Selection */}
+        <ModeSwitch mode={mode} handleModeChange={handleModeChange} />
 
-      {/* Generate Option Selection */}
-      <GenerateOptionSelect
-        options={options}
-        generateOption={generateOption}
-        setGenerateOption={setGenerateOption}
-      />
-      <EnvOptionSelect envOption={envOption} setEnvOption={setEnvOption} />
-
-      {/* Settings based on mode */}
-      {mode === 'single' ? (
-        <SingleModeForm
+        {/* Generate Option Selection */}
+        <GenerateOptionSelect
+          options={options}
           generateOption={generateOption}
-          setQRCodeData={setQRCodeData}
+          setGenerateOption={setGenerateOption}
         />
-      ) : (
-        // Render file input for multiple mode
-        <Input type="file" onChange={(e) => handleFileChange(e)} />
-      )}
+        <EnvOptionSelect envOption={envOption} setEnvOption={setEnvOption} />
 
-      {/* Generate Button */}
-      <Button mt={6} colorScheme="blue" onClick={handleGenerateQrCode}>
-        Generate
-      </Button>
+        {/* Settings based on mode */}
+        {mode === 'single' ? (
+          <SingleModeForm
+            generateOption={generateOption}
+            setQRCodeData={setQRCodeData}
+          />
+        ) : (
+          // Render file input for multiple mode
+          <Input type="file" onChange={(e) => handleFileChange(e)} />
+        )}
 
-      {/* Results Table */}
-      {hasResults && (
-        <>
-          <ResultSummary results={results} />
-          <ResultTable results={results} />
-        </>
-      )}
-    </Flex>
+        {/* Generate Button */}
+        <Button mt={6} colorScheme="blue" onClick={handleGenerateQrCode}>
+          Generate
+        </Button>
+      </Flex>
+      <Flex flexDirection="column" justifyContent="center">
+        {/* Results Table */}
+        {hasResults && (
+          <>
+            <ResultSummary results={results} />
+            <ResultTable results={results} />
+          </>
+        )}
+      </Flex>
+    </>
   );
 };
 
