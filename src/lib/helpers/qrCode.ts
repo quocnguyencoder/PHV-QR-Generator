@@ -80,8 +80,8 @@ export const downloadAllQRCodes = async (results: IResult[]) => {
       canvasElements.push(canvas);
     });
 
-    const promises = canvasElements.map(async (canvas, index) => {
-      const fileName = `QRCode_${index + 1}.png`;
+    const promises = canvasElements.map(async (canvas) => {
+      const fileName = `${canvas.id}.png`;
       const blob = await new Promise<Blob>((resolve) => {
         canvas.toBlob((b) => {
           if (b) {
@@ -99,9 +99,16 @@ export const downloadAllQRCodes = async (results: IResult[]) => {
 
     // Generate zip file
     const content = await zip.generateAsync({ type: 'blob' });
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+    const zipFileName = `qr_codes_${formattedDate}.zip`;
 
     // Download zip file
-    saveAs(content, 'qrcodes.zip');
+    saveAs(content, zipFileName);
     console.log('All QR codes downloaded and zipped successfully');
   } catch (error) {
     console.error('Error downloading and zipping QR codes:', error);
